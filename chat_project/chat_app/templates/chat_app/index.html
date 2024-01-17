@@ -29,9 +29,19 @@
             var messageInput = $('#message_input');
             var message = messageInput.val();
             if (message) {
-                $.post('/post_message/', {content: message}, function() {
-                    updateMessages();
-                    messageInput.val('');
+                var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+                $.ajax({
+                    url: '/post_message/',
+                    type: 'POST',
+                    data: {content: message},
+                    headers: {'X-CSRFToken': csrftoken},  // Устанавливаем токен CSRF в заголовок
+                    success: function() {
+                        updateMessages();
+                        messageInput.val('');
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
                 });
             }
         }

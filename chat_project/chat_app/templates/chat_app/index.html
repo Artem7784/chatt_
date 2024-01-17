@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <form id="message_form">
+    {% csrf_token %}
+    <input id="message_input" autocomplete="off" />
+    <button type="button" onclick="sendMessage()">Send</button>
+    </form>
+    <script>
+        function updateMessages() {
+            $.get('/get_messages/', function(data) {
+                $('#messages').empty();
+                $.each(data, function(index, message) {
+                    $('#messages').append('<li>' + message.content + ' - ' + message.timestamp + '</li>');
+                });
+            });
+        }
+
+        function sendMessage() {
+            var messageInput = $('#message_input');
+            var message = messageInput.val();
+            if (message) {
+                $.post('/post_message/', {content: message}, function() {
+                    updateMessages();
+                    messageInput.val('');
+                });
+            }
+        }
+
+        setInterval(updateMessages, 1000);
+    </script>
+</body>
+</html>
